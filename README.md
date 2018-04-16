@@ -1,1 +1,0 @@
-# Ctopic-homework
