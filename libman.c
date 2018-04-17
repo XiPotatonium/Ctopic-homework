@@ -27,7 +27,7 @@ int libman_interactive(BookData_t* data) {
     printf("Type \"help\" for more information.\n");
     int i = 0;
     while (1) {
-        printf(">>>");
+        printf(">>> ");
         if (get_cmd() == -1) {
             printf("Invalid input.\n");
         } else if (strcmp(cmd.str_cmd, "add") == 0) {
