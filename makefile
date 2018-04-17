@@ -6,11 +6,15 @@ else
 FLAGS = -c
 endif
 
-libman.exe: main.o libman.o
+build: obj main.exe
+obj:
+	mkdir obj
+main.exe: obj/main.o obj/libman.o
 	gcc obj/main.o obj/libman.o -o main.exe
-main.o: main.c
+obj/main.o: main.c
 	gcc -std=c89 $(FLAGS) main.c -o obj/main.o
-libman.o: libman.c libman.h
+obj/libman.o: libman.c libman.h
 	gcc -std=c89 $(FLAGS) libman.c -o obj/libman.o
 clean:
-	del /q obj\*
+	-del /q obj\*
+	-rm -rf obj

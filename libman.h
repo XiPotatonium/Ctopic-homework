@@ -7,6 +7,7 @@
 /* Definitions for commands */
 #define MAX_ARGS 5
 #define CMD_LEN 50
+
 #define SALL "-all"
 #define SNAME "-name"
 #define SAUTHOR "-author"
@@ -76,6 +77,15 @@ typedef struct BookData {
     int ndeletion;
 } BookData_t;
 
+/**
+ * Fucntion: libman_interactive
+ * -----------------
+ * Description:
+ *  Interact with stdio
+ * Return value:
+ *  It returns 0 when user decided to exit
+*/
+int libman_interactive(BookData_t* data);
 
 /**
  * Fucntion: get_cmd
@@ -97,7 +107,7 @@ int get_cmd(void);
  * Return value:
  *  It returns the number of books in the database
 */
-BookData_t initialize(char* filename);
+BookData_t* initialize(char* filename);
 
 /**
  * Function: add_book
