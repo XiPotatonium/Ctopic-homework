@@ -30,7 +30,7 @@ void aes256_decrypt_ecb(aes256_context_t*, uint8_t*);
 void aes256_encrypt(aes256_context_t* aes, aes256_data_t* data);
 void aes256_decrypt(aes256_context_t* aes, aes256_data_t* data);
 aes256_data_t* aes256_data_new(void* ptr, size_t size);
-void* aes256_data_get(aes256_data_t* aes);
+void* aes256_data_get(aes256_data_t* data, size_t* size);
 void aes256_data_free(aes256_data_t* data);
 
 #endif
