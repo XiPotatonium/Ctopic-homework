@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 
 /**************************************
  * Declarations of private functions *
@@ -14,6 +15,7 @@ static int hash(char* name);
 static int set_book(Book_t* book);
 static int append_linkedlist(BookData_t* data, Book_t* book, int i);
 static int print_book(Node_t* node);
+static int fprint_book(FILE* fp, Node_t* node);
 
 /*********************
  * Public functions *
@@ -27,7 +29,7 @@ int libman_interactive(BookData_t* data) {
     printf("Type \"help\" for more information.\n");
     int i = 0;
     while (1) {
-        printf(">>>");
+        printf(">>> ");
         if (get_cmd() == -1) {
             printf("Invalid input.\n");
         } else if (strcmp(cmd.str_cmd, "add") == 0) {
@@ -36,26 +38,25 @@ int libman_interactive(BookData_t* data) {
             delete_book(data);
         } else if (strcmp(cmd.str_cmd, "exit") == 0) {
             return 0;
+        } else if (strcmp(cmd.str_cmd, "export") == 0) {
+            export_book(data);
         } else if (strcmp(cmd.str_cmd, "help") == 0) {
             printf(
                 "These commands are defined internally:\n"
                 "\tadd: Add new books to the database\n"
                 "\tdel: Delete books from the database\n"
-                "\t\t" DID
-                "\n"
-                "\t\t" DALL
-                "\n"
+                "\t\t" DID "\n"
+                "\t\t" DALL "\n"
+                "\texit: exit the programme\n"
+                "\texport: Export books to a .txt file\n"
+                "\t\t" EALL "\n"
                 "\thelp: Print the help doc\n"
                 "\tmodify: Modify books in the database\n"
-                "\t\t" MID
-                "\n"
+                "\t\t" MID "\n"
                 "\tsearch: Search books in the database\n"
-                "\t\t" SALL
-                "\n"
-                "\t\t" SAUTHOR
-                "\n"
-                "\t\t" SKEY
-                "\n"
+                "\t\t" SALL "\n"
+                "\t\t" SAUTHOR "\n"
+                "\t\t" SKEY "\n"
                 "\t\t" SNAME "\n");
         } else if (strcmp(cmd.str_cmd, "modify") == 0) {
             modify_book(data);
@@ -96,10 +97,9 @@ int get_cmd(void) {
                     ++i;
                 } else {
                     cmd.argv[count - 1] = &cmd.str_cmd[i + 1];
-                    while (cmd.str_cmd[++i] != '"' && i < CMD_LEN)
-                        ;
+                    while (cmd.str_cmd[++i] != '"' && i < CMD_LEN);
                     if (i >= CMD_LEN) {
-                        return -1;
+                        return -4;
                     }
                     cmd.str_cmd[i] = '\0';
                 }
@@ -112,7 +112,9 @@ int get_cmd(void) {
 }
 
 BookData_t* initialize(char* filename) {
-    printf("LibMan 1.0 | %s, %s\n", __DATE__, __TIME__);
+    time_t curtime;
+    time(&curtime);
+    printf("LibMan 1.0 | %s", ctime(&curtime));
     BookData_t* data = (BookData_t*)malloc(sizeof(BookData_t));
     FILE* fp = fopen(filename, "rb");
     Book_t* tmp;
@@ -132,6 +134,12 @@ BookData_t* initialize(char* filename) {
     if (fp == NULL) {
         /* Create new database if the file doesn't exist */
         fp = fopen(filename, "wb");
+        if (fp == NULL) {
+            printf("ERROR: ");
+            perror(NULL);
+            free(data);
+            return NULL;
+        }
         printf("A new file has been created to save the books.\n");
     } else {
         while (1) {
@@ -149,11 +157,17 @@ BookData_t* initialize(char* filename) {
     data->ndeletion = 0;
     strcpy(data->filename, filename);
     printf("%d book(s) initialized.\n", data->nrecords_in_file);
+
     return data;
 }
 
 int add_book(BookData_t* data) {
     FILE* fp = fopen(data->filename, "rb+");
+    if (fp == NULL) {
+        printf("ERROR: ");
+        perror(NULL);
+        return -1;
+    }
     Book_t* tmp;
     int hashcode;
     int count = 0;
@@ -191,13 +205,19 @@ int modify_book(BookData_t* data) {
     char* key_id;
     int i, flag;
     FILE* fp = NULL;
+    fp = fopen(data->filename, "rb+");
+    if (fp == NULL) {
+    	printf("ERROR: ");
+    	perror(NULL);
+    	return -1;
+    }
 
     if (cmd.argc <= 1) {
         printf("Insufficient argument.\n");
-        return -1;
+        return -3;
     } else if (strcmp(cmd.argv[1], MID) != 0) {
         printf("Invalid argument.\n");
-        return -1;
+        return -3;
     } else if (cmd.argc == 2) {
         key_id = "";
     } else {
@@ -209,10 +229,8 @@ int modify_book(BookData_t* data) {
         while (node != data->hash_list[i]) {
             if (strcmp(key_id, node->book->id) == 0) {
                 set_book(node->book);
-                fp = fopen(data->filename, "rb+");
                 fseek(fp, sizeof(Book_t) * node->index, SEEK_SET);
                 fwrite(node->book, sizeof(Book_t), 1, fp);
-                fclose(fp);
                 flag = 1;
                 break;
             }
@@ -221,6 +239,7 @@ int modify_book(BookData_t* data) {
         if (flag == 1) break;
     }
 
+    fclose(fp);
     if (flag == 0) {
         printf("No such id.\n");
         return 1;
@@ -241,7 +260,7 @@ int delete_book(BookData_t* data) {
 
     if (cmd.argc <= 1) {
         printf("Insufficient argument.\n");
-        return -1;
+        return -3;
     } else if (strcmp(cmd.argv[1], DALL) == 0) {
         printf("Are you sure you want to delete the whole file?\n");
         printf("This may not be undone (Y/N): ");
@@ -257,7 +276,7 @@ int delete_book(BookData_t* data) {
         }
     } else if (strcmp(cmd.argv[1], DID) != 0) {
         printf("Invalid argument\n");
-        return -1;
+        return -3;
     } else if (cmd.argc == 2) {
         key_word = "";
     } else {
@@ -281,23 +300,29 @@ int delete_book(BookData_t* data) {
     }
     if (i == BUCKETS_SIZE) {
         printf("No such id.\n");
+    } else {
+	    fp = fopen(data->filename, "rb+");
+	    if (fp == NULL) {
+	    	printf("ERROR: ");
+	    	perror(NULL);
+	    	return -1;
+	    }
+	    fseek(fp, (data->nrecords_in_file - data->ndeletion - 1) * sizeof(Book_t),
+	          SEEK_SET);
+	    fread(&tmp, sizeof(Book_t), 1, fp);
+	    fseek(fp, index * sizeof(Book_t), SEEK_SET);
+	    fwrite(&tmp, sizeof(Book_t), 1, fp);
+	    fclose(fp);
+	    ++data->ndeletion;    	
     }
 
-    fp = fopen(data->filename, "rb+");
-    fseek(fp, (data->nrecords_in_file - data->ndeletion - 1) * sizeof(Book_t),
-          SEEK_SET);
-    fread(&tmp, sizeof(Book_t), 1, fp);
-    fseek(fp, index * sizeof(Book_t), SEEK_SET);
-    fwrite(&tmp, sizeof(Book_t), 1, fp);
-    fclose(fp);
-    ++data->ndeletion;
     return 0;
 }
 
 int search_book(BookData_t* data) {
     if (cmd.argc <= 1 || (cmd.argc <= 2 && strcmp(cmd.argv[1], SALL) != 0)) {
         printf("Insufficient argument.\n");
-        return -1;
+        return -3;
     }
 
     int count = 0;
@@ -399,7 +424,7 @@ int search_book(BookData_t* data) {
         }
     } else {
         printf("Invalid argument.\n");
-        return -1;
+        return -3;
     }
 
     return count;
@@ -408,6 +433,7 @@ int search_book(BookData_t* data) {
 int free_memory(BookData_t* data) {
     /* Remember to free the memory allocated in append_linkedlist */
     Node_t* tmp;
+    int ret;
     int i = 0;
     for (i = 0; i < BUCKETS_SIZE; ++i) {
         tmp = data->hash_list[i]->next;
@@ -425,17 +451,74 @@ int free_memory(BookData_t* data) {
         Book_t tmp;
         char* tmp_name = "temp.db";
         FILE* fp = fopen(data->filename, "rb");
+        if (fp == NULL) {
+        	printf("ERROR: ");
+        	perror(NULL);
+        	printf("Fail to open %s to save modifications\n", data->filename);
+        	return -1;
+        }
         FILE* ftmp = fopen(tmp_name, "wb");
+        if (ftmp == NULL) {
+        	printf("ERROR: ");
+        	perror(NULL);
+        	printf("Fail to create %s to save modifications.\n", tmp_name);
+        	return -1;
+        }
         for (i = 0; i < data->nrecords_in_file - data->ndeletion; ++i) {
             fread(&tmp, sizeof(Book_t), 1, fp);
             fwrite(&tmp, sizeof(Book_t), 1, ftmp);
         }
         fclose(fp);
         fclose(ftmp);
-        remove(data->filename);
-        rename(tmp_name, data->filename);
+        if (remove(data->filename) == -1) {
+            printf("ERROR: ");
+            perror(NULL);
+            printf("Fail to remove the old file. Please remove it manually.\n");
+            ret = -2;
+        }
+        if (rename(tmp_name, data->filename) == -1) {
+            printf("ERROR: ");
+            perror(NULL);
+            printf("Fail to rename the data file. Please rename it manually.\n");
+            ret = -2;
+        }
     }
 
+    return ret;
+}
+
+int export_book(BookData_t* data) {
+    char* out_filename = "out.txt";
+    FILE* fout = fopen(out_filename, "w");
+    if (fout == NULL) {
+        printf("ERROR: ");
+        perror(NULL);
+        return -1;
+    }
+
+    Node_t* tmp = NULL;
+    int i = 0;
+    fprintf(fout, "+");
+    for (i = 0; i < 38; ++i) {
+        fprintf(fout, "=");
+    }
+    fprintf(fout, "+\n|      Books exported from libman      |\n+");
+    for (i = 0; i < 38; ++i) {
+        fprintf(fout, "=");
+    }
+    fprintf(fout, "+\n");
+    if (strcmp(cmd.argv[1], EALL) == 0) {
+        for (i = 0; i < BUCKETS_SIZE; ++i) {
+            tmp = data->hash_list[i]->next;
+            while (tmp != data->hash_list[i]) {
+                fprint_book(fout, tmp);
+                tmp = tmp->next;
+            }
+        }
+    }
+
+    fclose(fout);
+    printf("Successfully export books to %s\n", out_filename);
     return 0;
 }
 
@@ -529,6 +612,33 @@ int print_book(Node_t* node) {
         printf(" %s,", node->book->keys[i]);
     }
     printf("\b \n\tPublish date: %s\n", node->book->publish_date);
+
+    return 0;
+}
+
+static int fprint_book(FILE* fp, Node_t* node) {
+    int i;
+    char format[10];
+    sprintf(format, "%%%ds: %%s\n", ID_LEN);
+    fprintf(fp, format, node->book->id, node->book->name);
+    fprintf(fp, "\tAuthors: ");
+    for (i = 0; i < MAX_AUTHOR; ++i) {
+        if (strlen(node->book->authors[i]) == 0) break;
+        if (i != 0) fprintf(fp, ", ");
+        fprintf(fp, "%s", node->book->authors[i]);
+    }
+    fprintf(fp, "\n\tPress: %s\n", node->book->press);
+    fprintf(fp, "\tkeys: ");
+    for (i = 0; i < MAX_KEY; ++i) {
+        if (strlen(node->book->keys[i]) == 0) break;
+        if (i != 0) fprintf(fp, ", ");
+        fprintf(fp, "%s", node->book->keys[i]);
+    }
+    fprintf(fp, "\n\tPublish date: %s\n", node->book->publish_date);
+    for (i = 0; i < 40; ++i) {
+        fprintf(fp, "=");
+    }
+    fprintf(fp, "\n");
 
     return 0;
 }

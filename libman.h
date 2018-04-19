@@ -15,6 +15,7 @@
 #define MID "-id"
 #define DID "-id"
 #define DALL "-all"
+#define EALL "-all"
 
 /* Some definitions for struct Book */
 #define NAME_LEN 40
@@ -95,6 +96,7 @@ int libman_interactive(BookData_t* data);
  * into several arguments
  * Return value:
  *  It returns the number of arguments it received
+ *  It returns -4 if there is some error in parsing the command
 */
 int get_cmd(void);
 
@@ -102,10 +104,11 @@ int get_cmd(void);
  * Function: initialize
  * --------------------
  * Description:
- *  The function initialize the dictionary and linked
- * list from the file indicated by filename
+ *  The function initialize the dictionary and data
+ *  from the file indicated by filename
  * Return value:
- *  It returns the number of books in the database
+ *  It returns the pointer of the type BookData_t*
+ *  It returns NULL if it failed to create the pointer
 */
 BookData_t* initialize(char* filename);
 
@@ -114,9 +117,10 @@ BookData_t* initialize(char* filename);
  * ------------------
  * Description:
  *  The function adds new books into the linked list and
- * save them to the file indicated by filename
+ * save them to the file indicated by data
  * Return value:
  *  It returns the number of books that has been added.
+ *  It returns -1 if there are something wrong with teh file
 */
 int add_book(BookData_t* data);
 
@@ -125,16 +129,26 @@ int add_book(BookData_t* data);
  * ---------------------
  * Description:
  *  The function modifies a certain book indicated in the
- * command save the changes to the file indicated by filename
+ * command,save the changes to the file indicated by data
  * Return value:
- *  It returns -1 if there are something wrong in the command
+ *  It returns -3 if there are something wrong in the command
  *  It returns 0 if everything is all fine
+ *  It returns -1 if there is something wrong with the file
  *  It returns 1 if the target book doesn't exist
 */
 int modify_book(BookData_t* data);
 
 /**
  * Function: delete_book
+ * ---------------------
+ * Description:
+ * 	The function delete the certain book indicated in the command 
+ * 	You can also use it to delete the whole file. The programme will
+ * shut down if you delete the whole file
+ * Rrturn value:
+ * 	It returns 0 if everthing goes well.
+ * 	It returns 1 if there is something wrong with the file
+ *  It returns -1 if the argument is invalid
 */
 int delete_book(BookData_t* data);
 
@@ -146,7 +160,7 @@ int delete_book(BookData_t* data);
  * in the command and print the result in the screen
  * Return value:
  *  It returns 0 if everything is all fine
- *  It returns -1 if there are something wrong in the command
+ *  It returns -3 if there are something wrong in the command
 */
 int search_book(BookData_t* data);
 
@@ -158,6 +172,9 @@ int search_book(BookData_t* data);
  * rewrite the file if some deletion has been made
  * Return value:
  *  It returns 0 if everything is all fine
+ * 	It returns -1 if there is something wrong with the file
+ *  It returns -2 if there is something wrong with the file, but it can
+ * be fixed manually.
 */
 int free_memory(BookData_t* data);
 
