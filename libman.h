@@ -4,6 +4,8 @@
 #ifndef _LIBMAN_H
 #define _LIBMAN_H
 
+#include "aes256.h"
+
 /* Definitions for commands */
 #define MAX_ARGS 5
 #define CMD_LEN 50
@@ -32,7 +34,7 @@
 */
 #define BUCKETS_SIZE 28
 #define FNAME_LEN 50
-
+#define BOOK_SIZE 512
 /**
  * 
 */
@@ -75,6 +77,7 @@ typedef struct BookData {
     Node_t* hash_list[BUCKETS_SIZE];
     int nrecords_in_file;
     int ndeletion;
+    aes256_context_t* aes;
 } BookData_t;
 
 /**

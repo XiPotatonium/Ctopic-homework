@@ -14,6 +14,8 @@ static int hash(char* name);
 static int set_book(Book_t* book);
 static int append_linkedlist(BookData_t* data, Book_t* book, int i);
 static int print_book(Node_t* node);
+static void book_save(BookData_t* data, Book_t* book, FILE* fp);
+static void book_load(BookData_t* data, Book_t* book, FILE* fp);
 
 /*********************
  * Public functions *
@@ -133,14 +135,24 @@ BookData_t* initialize(char* filename) {
         /* Create new database if the file doesn't exist */
         fp = fopen(filename, "wb");
         printf("A new file has been created to save the books.\n");
+        printf("Please create the password: ");
+        /* TODO: create the password by user*/
+        char* key = aes256_get_key("C_TOPIC");
+        data->aes = aes256_init(key);
     } else {
+        printf("Enter the password: ");
+        /* TODO: let user enter the password*/
+        char* key = aes256_get_key("C_TOPIC");
+        data->aes = aes256_init(key);
+
         while (1) {
-            tmp = (Book_t*)malloc(sizeof(Book_t));
-            fread(tmp, sizeof(Book_t), 1, fp);
+            tmp = (Book_t*)malloc(BOOK_SIZE);
+            book_load(data, tmp, fp);
             if (feof(fp)) break;
             append_linkedlist(data, tmp, i);
             ++i;
         }
+
         free(tmp);
     }
 
@@ -160,7 +172,7 @@ int add_book(BookData_t* data) {
     int i = 0;
 
     while (1) {
-        tmp = (Book_t*)malloc(sizeof(Book_t));
+        tmp = (Book_t*)malloc(BOOK_SIZE);
         if (set_book(tmp) == 1) {
             printf("Adding terminated: %d %s added.\n", count,
                    count > 1 ? "books" : "book");
@@ -169,15 +181,15 @@ int add_book(BookData_t* data) {
 
         if (data->ndeletion > 0) {
             /* If some deletion has been made, rewrite the trash record */
-            fseek(fp, -data->ndeletion * (long)sizeof(Book_t), SEEK_END);
+            fseek(fp, -data->ndeletion * BOOK_SIZE, SEEK_END);
             --data->ndeletion;
         } else {
             /* Once a book is added, save it to the end of the file */
             fseek(fp, 0, SEEK_END);
             ++data->nrecords_in_file;
         }
-        fwrite(tmp, sizeof(Book_t), 1, fp);
-        append_linkedlist(data, tmp, ftell(fp) / sizeof(Book_t) - 1);
+        book_save(data, tmp, fp);
+        append_linkedlist(data, tmp, ftell(fp) / BOOK_SIZE - 1);
         ++count;
     }
     free(tmp);
@@ -210,8 +222,8 @@ int modify_book(BookData_t* data) {
             if (strcmp(key_id, node->book->id) == 0) {
                 set_book(node->book);
                 fp = fopen(data->filename, "rb+");
-                fseek(fp, sizeof(Book_t) * node->index, SEEK_SET);
-                fwrite(node->book, sizeof(Book_t), 1, fp);
+                fseek(fp, BOOK_SIZE * node->index, SEEK_SET);
+                book_save(data, node->book, fp);
                 fclose(fp);
                 flag = 1;
                 break;
@@ -284,11 +296,11 @@ int delete_book(BookData_t* data) {
     }
 
     fp = fopen(data->filename, "rb+");
-    fseek(fp, (data->nrecords_in_file - data->ndeletion - 1) * sizeof(Book_t),
+    fseek(fp, (data->nrecords_in_file - data->ndeletion - 1) * BOOK_SIZE,
           SEEK_SET);
-    fread(&tmp, sizeof(Book_t), 1, fp);
-    fseek(fp, index * sizeof(Book_t), SEEK_SET);
-    fwrite(&tmp, sizeof(Book_t), 1, fp);
+    book_load(data, &tmp, fp);
+    fseek(fp, index * BOOK_SIZE, SEEK_SET);
+    book_save(data, &tmp, fp);
     fclose(fp);
     ++data->ndeletion;
     return 0;
@@ -427,8 +439,8 @@ int free_memory(BookData_t* data) {
         FILE* fp = fopen(data->filename, "rb");
         FILE* ftmp = fopen(tmp_name, "wb");
         for (i = 0; i < data->nrecords_in_file - data->ndeletion; ++i) {
-            fread(&tmp, sizeof(Book_t), 1, fp);
-            fwrite(&tmp, sizeof(Book_t), 1, ftmp);
+            book_load(data, &tmp, fp);
+            book_save(data, &tmp, ftmp);
         }
         fclose(fp);
         fclose(ftmp);
@@ -531,4 +543,20 @@ int print_book(Node_t* node) {
     printf("\b \n\tPublish date: %s\n", node->book->publish_date);
 
     return 0;
+}
+
+static void book_save(BookData_t* data, Book_t* book, FILE* fp) {
+    void* enc = calloc(1, BOOK_SIZE);
+    memcpy(enc, book, sizeof(Book_t));
+    aes256_encrypt(data->aes, enc, BOOK_SIZE);
+    fwrite(enc, BOOK_SIZE, 1, fp);
+    free(enc);
+}
+
+static void book_load(BookData_t* data, Book_t* book, FILE* fp) {
+    void* dec = calloc(1, BOOK_SIZE);
+    fread(dec, BOOK_SIZE, 1, fp);
+    aes256_decrypt(data->aes, dec, BOOK_SIZE);
+    memcpy(book, dec, sizeof(Book_t));
+    free(dec);
 }

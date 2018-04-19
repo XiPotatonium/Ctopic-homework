@@ -228,51 +228,53 @@ void aes_expandDecKey(uint8_t* k, uint8_t* rc) {
     k[2] ^= rj_sbox(k[31]);
     k[3] ^= rj_sbox(k[28]);
 }
-void aes256_init(aes256_context_t* ctx, uint8_t* k) {
+aes256_context_t* aes256_init(uint8_t* k) {
+    aes256_context_t* aes = (aes256_context_t*)malloc(sizeof(aes256_context_t));
     uint8_t rcon = 1;
     register uint8_t i;
-    for (i = 0; i < sizeof(ctx->key); i++)
-        ctx->enckey[i] = ctx->deckey[i] = k[i];
-    for (i = 8; --i;) aes_expandEncKey(ctx->deckey, &rcon);
+    for (i = 0; i < sizeof(aes->key); i++)
+        aes->enckey[i] = aes->deckey[i] = k[i];
+    for (i = 8; --i;) aes_expandEncKey(aes->deckey, &rcon);
+    return aes;
 }
-void aes256_done(aes256_context_t* ctx) {
+void aes256_done(aes256_context_t* aes) {
     register uint8_t i;
-    for (i = 0; i < sizeof(ctx->key); i++)
-        ctx->key[i] = ctx->enckey[i] = ctx->deckey[i] = 0;
+    for (i = 0; i < sizeof(aes->key); i++)
+        aes->key[i] = aes->enckey[i] = aes->deckey[i] = 0;
 }
-void aes256_encrypt_ecb(aes256_context_t* ctx, uint8_t* buf) {
+void aes256_encrypt_ecb(aes256_context_t* aes, uint8_t* buf) {
     uint8_t i, rcon;
-    aes_addRoundKey_cpy(buf, ctx->enckey, ctx->key);
+    aes_addRoundKey_cpy(buf, aes->enckey, aes->key);
     for (i = 1, rcon = 1; i < 14; ++i) {
         aes_subBytes(buf);
         aes_shiftRows(buf);
         aes_mixColumns(buf);
         if (i & 1)
-            aes_addRoundKey(buf, &ctx->key[16]);
+            aes_addRoundKey(buf, &aes->key[16]);
         else
-            aes_expandEncKey(ctx->key, &rcon), aes_addRoundKey(buf, ctx->key);
+            aes_expandEncKey(aes->key, &rcon), aes_addRoundKey(buf, aes->key);
     }
     aes_subBytes(buf);
     aes_shiftRows(buf);
-    aes_expandEncKey(ctx->key, &rcon);
-    aes_addRoundKey(buf, ctx->key);
+    aes_expandEncKey(aes->key, &rcon);
+    aes_addRoundKey(buf, aes->key);
 }
-void aes256_decrypt_ecb(aes256_context_t* ctx, uint8_t* buf) {
+void aes256_decrypt_ecb(aes256_context_t* aes, uint8_t* buf) {
     uint8_t i, rcon;
-    aes_addRoundKey_cpy(buf, ctx->deckey, ctx->key);
+    aes_addRoundKey_cpy(buf, aes->deckey, aes->key);
     aes_shiftRows_inv(buf);
     aes_subBytes_inv(buf);
     for (i = 14, rcon = 0x80; --i;) {
         if ((i & 1)) {
-            aes_expandDecKey(ctx->key, &rcon);
-            aes_addRoundKey(buf, &ctx->key[16]);
+            aes_expandDecKey(aes->key, &rcon);
+            aes_addRoundKey(buf, &aes->key[16]);
         } else
-            aes_addRoundKey(buf, ctx->key);
+            aes_addRoundKey(buf, aes->key);
         aes_mixColumns_inv(buf);
         aes_shiftRows_inv(buf);
         aes_subBytes_inv(buf);
     }
-    aes_addRoundKey(buf, ctx->key);
+    aes_addRoundKey(buf, aes->key);
 }
 
 uint8_t* aes256_get_key(char* str) {
@@ -290,47 +292,16 @@ uint8_t* aes256_get_key(char* str) {
     return key;
 }
 
-void aes256_encrypt(aes256_context_t* aes, aes256_data_t* data) {
-    if (!data->encrypted) {
-        int n = data->size / 16;
-        int i;
-        for (i = 0; i < n; i++) {
-            aes256_encrypt_ecb(aes, (uint8_t*)data->ptr + n * 16);
-        }
-        data->encrypted = 1;
+/* 封装的加密解密函数 */
+void aes256_encrypt(aes256_context_t* aes, uint8_t* buf, size_t size) {
+    int i;
+    for (i = 0; i < size; i += 16) {
+        aes256_encrypt_ecb(aes, buf + i);
     }
 }
-void aes256_decrypt(aes256_context_t* aes, aes256_data_t* data) {
-    if (data->encrypted) {
-        int n = data->size / 16;
-        int i;
-        for (i = 0; i < n; i++) {
-            aes256_decrypt_ecb(aes, (uint8_t*)data->ptr + n * 16);
-        }
-        data->encrypted = 0;
+void aes256_decrypt(aes256_context_t* aes, uint8_t* buf, size_t size) {
+    int i;
+    for (i = 0; i < size; i += 16) {
+        aes256_decrypt_ecb(aes, buf + i);
     }
-}
-
-aes256_data_t* aes256_data_new(void* ptr, size_t size) {
-    aes256_data_t* data = malloc(sizeof(aes256_data_t));
-    size_t size_need = sizeof(size_t) + size;
-    if (size_need % 16 != 0) {
-        size_need += 16 - size % 16;
-    }
-    data->ptr = malloc(size_need);
-    data->encrypted = 0;
-    data->size = size_need;
-    memcpy((size_t*)data->ptr + 1, ptr, size);
-}
-
-void* aes256_data_get(aes256_data_t* data, size_t* size) {
-    size_t* ptr = (size_t*)data->ptr;
-    *size = *ptr;
-    ptr += 1;
-    return ptr;
-}
-
-void aes256_data_free(aes256_data_t* data) {
-    free(data->ptr);
-    free(data);
 }
