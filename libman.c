@@ -319,15 +319,15 @@ int delete_book(BookData_t* data) {
 	    	perror(NULL);
 	    	return -1;
 	    }
-	    fseek(fp, (data->nrecords_in_file - data->ndeletion - 1) * sizeof(Book_t),
+	    fseek(fp, (data->nrecords_in_file - data->ndeletion - 1) * BOOK_SIZE,
 	          SEEK_SET);
 	    fread(&tmp, sizeof(Book_t), 1, fp);
-	    fseek(fp, index * sizeof(Book_t), SEEK_SET);
+	    fseek(fp, index * BOOK_SIZE, SEEK_SET);
 	    fwrite(&tmp, sizeof(Book_t), 1, fp);
 	    fclose(fp);
 	    ++data->ndeletion;    	
     }
-
+    
     return 0;
 }
 
