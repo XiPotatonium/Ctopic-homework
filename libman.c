@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
+#include <conio.h>
 
 /**************************************
  * Declarations of private functions *
@@ -24,10 +25,13 @@ static void book_load(BookData_t* data, Book_t* book, FILE* fp);
  *********************/
 
 int libman_interactive(BookData_t* data) {
+    printf("\n");
     printf(
-        "+--------------------+\n"
-        "| LibMan Interactive |\n"
-        "+--------------------+\n");
+        "+----------------------------------+\n"
+        "|                                  |\n"
+        "|        LibMan Interactive        |\n"
+        "|                                  |\n"
+        "+----------------------------------+\n");
     printf("Type \"help\" for more information.\n");
     int i = 0;
     while (1) {
@@ -47,18 +51,25 @@ int libman_interactive(BookData_t* data) {
                 "These commands are defined internally:\n"
                 "\tadd: Add new books to the database\n"
                 "\tdel: Delete books from the database\n"
-                "\t\t" DID "\n"
-                "\t\t" DALL "\n"
+                "\t\t" DID
+                "\n"
+                "\t\t" DALL
+                "\n"
                 "\texit: exit the programme\n"
                 "\texport: Export books to a .txt file\n"
-                "\t\t" EALL "\n"
+                "\t\t" EALL
+                "\n"
                 "\thelp: Print the help doc\n"
                 "\tmodify: Modify books in the database\n"
-                "\t\t" MID "\n"
+                "\t\t" MID
+                "\n"
                 "\tsearch: Search books in the database\n"
-                "\t\t" SALL "\n"
-                "\t\t" SAUTHOR "\n"
-                "\t\t" SKEY "\n"
+                "\t\t" SALL
+                "\n"
+                "\t\t" SAUTHOR
+                "\n"
+                "\t\t" SKEY
+                "\n"
                 "\t\t" SNAME "\n");
         } else if (strcmp(cmd.str_cmd, "modify") == 0) {
             modify_book(data);
@@ -99,7 +110,8 @@ int get_cmd(void) {
                     ++i;
                 } else {
                     cmd.argv[count - 1] = &cmd.str_cmd[i + 1];
-                    while (cmd.str_cmd[++i] != '"' && i < CMD_LEN);
+                    while (cmd.str_cmd[++i] != '"' && i < CMD_LEN)
+                        ;
                     if (i >= CMD_LEN) {
                         return -4;
                     }
@@ -123,6 +135,7 @@ BookData_t* initialize(char* filename) {
     Node_t* tmp_node;
 
     int i = 0;
+    int new = 0;
     int hashcode;
     /* Initialize hash list and construct the sentinel */
     for (i = 0; i < BUCKETS_SIZE; ++i) {
@@ -143,14 +156,20 @@ BookData_t* initialize(char* filename) {
             return NULL;
         }
         printf("A new file has been created to save the books.\n");
-        printf("Please create the password: ");
-        /* TODO: create the password by user*/
-        char* key = aes256_get_key("C_TOPIC");
-        data->aes = aes256_init(key);
+        while (1) {
+            char* p1 = get_password("Please create the password: ", 1);
+            char* p2 = get_password("Confirm: ", 1);
+            if (strcmp(p1, p2) == 0) {
+                data->aes = aes256_init(aes256_get_key(p1));
+                break;
+            } else {
+                printf("Confirm failed!\n");
+            }
+        }
+        new = 1;
     } else {
-        printf("Enter the password: ");
-        /* TODO: let user enter the password*/
-        char* key = aes256_get_key("C_TOPIC");
+        char* password = get_password("Enter the password: ", 1);
+        char* key = aes256_get_key(password);
         data->aes = aes256_init(key);
 
         while (1) {
@@ -168,8 +187,9 @@ BookData_t* initialize(char* filename) {
     data->nrecords_in_file = i;
     data->ndeletion = 0;
     strcpy(data->filename, filename);
-    printf("%d book(s) initialized.\n", data->nrecords_in_file);
-
+    if (!new) {
+        printf("%d book(s) initialized.\n", data->nrecords_in_file);
+    }
     return data;
 }
 
@@ -219,9 +239,9 @@ int modify_book(BookData_t* data) {
     FILE* fp = NULL;
     fp = fopen(data->filename, "rb+");
     if (fp == NULL) {
-    	printf("ERROR: ");
-    	perror(NULL);
-    	return -1;
+        printf("ERROR: ");
+        perror(NULL);
+        return -1;
     }
 
     if (cmd.argc <= 1) {
@@ -313,21 +333,21 @@ int delete_book(BookData_t* data) {
     if (i == BUCKETS_SIZE) {
         printf("No such id.\n");
     } else {
-	    fp = fopen(data->filename, "rb+");
-	    if (fp == NULL) {
-	    	printf("ERROR: ");
-	    	perror(NULL);
-	    	return -1;
-	    }
-	    fseek(fp, (data->nrecords_in_file - data->ndeletion - 1) * BOOK_SIZE,
-	          SEEK_SET);
-	    fread(&tmp, sizeof(Book_t), 1, fp);
-	    fseek(fp, index * BOOK_SIZE, SEEK_SET);
-	    fwrite(&tmp, sizeof(Book_t), 1, fp);
-	    fclose(fp);
-	    ++data->ndeletion;    	
+        fp = fopen(data->filename, "rb+");
+        if (fp == NULL) {
+            printf("ERROR: ");
+            perror(NULL);
+            return -1;
+        }
+        fseek(fp, (data->nrecords_in_file - data->ndeletion - 1) * BOOK_SIZE,
+              SEEK_SET);
+        fread(&tmp, sizeof(Book_t), 1, fp);
+        fseek(fp, index * BOOK_SIZE, SEEK_SET);
+        fwrite(&tmp, sizeof(Book_t), 1, fp);
+        fclose(fp);
+        ++data->ndeletion;
     }
-    
+
     return 0;
 }
 
@@ -464,17 +484,17 @@ int free_memory(BookData_t* data) {
         char* tmp_name = "temp.db";
         FILE* fp = fopen(data->filename, "rb");
         if (fp == NULL) {
-        	printf("ERROR: ");
-        	perror(NULL);
-        	printf("Fail to open %s to save modifications\n", data->filename);
-        	return -1;
+            printf("ERROR: ");
+            perror(NULL);
+            printf("Fail to open %s to save modifications\n", data->filename);
+            return -1;
         }
         FILE* ftmp = fopen(tmp_name, "wb");
         if (ftmp == NULL) {
-        	printf("ERROR: ");
-        	perror(NULL);
-        	printf("Fail to create %s to save modifications.\n", tmp_name);
-        	return -1;
+            printf("ERROR: ");
+            perror(NULL);
+            printf("Fail to create %s to save modifications.\n", tmp_name);
+            return -1;
         }
         for (i = 0; i < data->nrecords_in_file - data->ndeletion; ++i) {
             book_load(data, &tmp, fp);
@@ -491,7 +511,8 @@ int free_memory(BookData_t* data) {
         if (rename(tmp_name, data->filename) == -1) {
             printf("ERROR: ");
             perror(NULL);
-            printf("Fail to rename the data file. Please rename it manually.\n");
+            printf(
+                "Fail to rename the data file. Please rename it manually.\n");
             ret = -2;
         }
     }
@@ -653,6 +674,39 @@ static int fprint_book(FILE* fp, Node_t* node) {
     fprintf(fp, "\n");
 
     return 0;
+}
+
+char* get_password(char* prompt, int asterisk) {
+    printf("%s", prompt);
+    /* last char for /0 */
+    char* password = malloc(PASSWORD_LEN + 1);
+    char ch;
+    int i = 0;
+    while (1) {
+        if (i == PASSWORD_LEN) break;
+        ch = getch();
+
+        if (ch == 13) {
+            break;
+        }
+        if (ch == 8) /*ASCII value of BACKSPACE*/
+        {
+            if (i > 0) {
+                putchar('\b');
+                putchar(' ');
+                putchar('\b');
+                i--;
+            }
+            continue;
+        }
+
+        password[i++] = ch;
+        ch = '*';
+        putch(ch);
+    }
+    password[i] = '\0';
+    printf("\n");
+    return password;
 }
 
 static void book_save(BookData_t* data, Book_t* book, FILE* fp) {

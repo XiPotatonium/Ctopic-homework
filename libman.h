@@ -35,7 +35,13 @@
 */
 #define BUCKETS_SIZE 28
 #define FNAME_LEN 50
+
+/* A Book_t in file takes 512B */
 #define BOOK_SIZE 512
+
+/* Max length of password */
+#define PASSWORD_LEN 20
+
 /**
  * 
 */
@@ -190,5 +196,7 @@ int import_book(BookData_t* data, char* src_name);
  * Function: export_book
 */
 int export_book(BookData_t* data);
+
+char* get_password(char* prompt, int asterist);
 
 #endif
