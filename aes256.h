@@ -18,6 +18,7 @@ void aes256_done(aes256_context_t*);
 void aes256_encrypt_ecb(aes256_context_t*, uint8_t*);
 void aes256_decrypt_ecb(aes256_context_t*, uint8_t*);
 
+/* 封装的加密解密函数 */
 void aes256_encrypt(aes256_context_t*, uint8_t*, size_t size);
 void aes256_decrypt(aes256_context_t*, uint8_t*, size_t size);
 
