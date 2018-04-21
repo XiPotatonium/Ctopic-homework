@@ -108,27 +108,6 @@ typedef struct BookData {
     aes256_context_t* aes;
 } BookData_t;
 
-/**
- * Fucntion: libman_interactive
- * -----------------
- * Description:
- *  Interact with stdio
- * Return value:
- *  It returns 0 when user decided to exit
-*/
-int libman_interactive(BookData_t* data);
-
-/**
- * Fucntion: get_cmd
- * -----------------
- * Description:
- *  The function get a string from keyboard and resolve it
- * into several arguments
- * Return value:
- *  It returns the number of arguments it received
- *  It returns -4 if there is some error in parsing the command
-*/
-int get_cmd(void);
 
 /**
  * Function: initialize
@@ -143,56 +122,14 @@ int get_cmd(void);
 BookData_t* initialize(char* filename);
 
 /**
- * Function: add_book
- * ------------------
+ * Fucntion: libman_interactive
+ * -----------------
  * Description:
- *  The function adds new books into the linked list and
- * save them to the file indicated by data
+ *  Interact with stdio
  * Return value:
- *  It returns the number of books that has been added.
- *  It returns -1 if there are something wrong with teh file
+ *  It returns 0 when user decided to exit
 */
-int add_book(BookData_t* data);
-
-/**
- * Function: modify_book
- * ---------------------
- * Description:
- *  The function modifies a certain book indicated in the
- * command,save the changes to the file indicated by data
- * Return value:
- *  It returns -3 if there are something wrong in the command
- *  It returns 0 if everything is all fine
- *  It returns -1 if there is something wrong with the file
- *  It returns 1 if the target book doesn't exist
-*/
-int modify_book(BookData_t* data);
-
-/**
- * Function: delete_book
- * ---------------------
- * Description:
- * 	The function delete the certain book indicated in the command 
- * 	You can also use it to delete the whole file. The programme will
- * shut down if you delete the whole file
- * Rrturn value:
- * 	It returns 0 if everthing goes well.
- * 	It returns 1 if there is something wrong with the file
- *  It returns -1 if the argument is invalid
-*/
-int delete_book(BookData_t* data);
-
-/**
- * Function: search_book
- * ---------------------
- * Description:
- *  The function search the linked list with key word indicated
- * in the command and print the result in the screen
- * Return value:
- *  It returns 0 if everything is all fine
- *  It returns -3 if there are something wrong in the command
-*/
-int search_book(BookData_t* data);
+int libman_interactive(BookData_t* data);
 
 /**
  * Function: free_memory
@@ -207,42 +144,5 @@ int search_book(BookData_t* data);
  * be fixed manually.
 */
 int free_memory(BookData_t* data);
-
-/**
- * Function: import_book
- * ---------------------
- * Description:
- *  Import books from a .txt file indicated by src_name
- * In princile, users should only import a .txt generated
- * by export_book
- * Return value:
- *  It returns -1 if there is something wrong in openning
- * the source file.
- *  It returns -2 if the source file is invalid.
- *  It returns 0 if everthing is fine.
-*/
-int import_book(BookData_t* data, char* src_name);
-
-/**
- * Function: export_book
- * ---------------------
- * Description:
- *  Export books to a .txt file. The filename is by default
- * "out.txt"
- * Return value:
- *  Return -1 if there is something wrong with the output file
- *  Return 0 if everthing is fine
-*/
-int export_book(BookData_t* data, int allrecords);
-
-/**
- * Function: get_password
- * ----------------------
- * Description:
- *  Get the password from keyboard input.
- * Return value:
- *  The password.
-*/
-char* get_password(char* prompt, int asterisk);
 
 #endif
