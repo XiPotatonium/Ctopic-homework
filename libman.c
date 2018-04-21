@@ -788,7 +788,7 @@ static int delete_book(BookData_t* data) {
         if (ch == 'y' || ch == 'Y') {
             remove(data->filename);
             data->ndeletion = 0;
-            free_memory(data);
+            libman_free(data);
             exit(0);
         } else {
             printf("Deletion terminated.\n");
