@@ -21,7 +21,7 @@ static void book_save(BookData_t* data, Book_t* book, FILE* fp);
 static void book_load(BookData_t* data, Book_t* book, FILE* fp);
 
 #define N_COMMANDS 7
-char* commands[7] = {"add",  "del",    "export", "exit",
+char* commands[N_COMMANDS] = {"add",  "del",    "export", "exit",
                      "help", "modify", "search"};
 
 /*********************
