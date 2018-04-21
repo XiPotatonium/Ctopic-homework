@@ -113,7 +113,7 @@ typedef struct BookData {
 
 
 /**
- * Function: initialize
+ * Function: libman_initialize
  * --------------------
  * Description:
  *  The function initialize the dictionary and data
@@ -122,7 +122,7 @@ typedef struct BookData {
  *  It returns the pointer of the type BookData_t*
  *  It returns NULL if it failed to create the pointer
 */
-BookData_t* initialize(char* filename);
+BookData_t* libman_initialize(char* filename);
 
 /**
  * Fucntion: libman_interactive
@@ -135,7 +135,7 @@ BookData_t* initialize(char* filename);
 int libman_interactive(BookData_t* data);
 
 /**
- * Function: free_memory
+ * Function: libman_free
  * ---------------------
  * Description:
  *  The function free the memory allocated for linked list and
@@ -146,6 +146,6 @@ int libman_interactive(BookData_t* data);
  *  It returns -2 if there is something wrong with the file, but it can
  * be fixed manually.
 */
-int free_memory(BookData_t* data);
+int libman_free(BookData_t* data);
 
 #endif

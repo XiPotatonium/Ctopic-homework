@@ -4,9 +4,9 @@
 
 int main(void) {
     char* filename = "libman.db";
-    BookData_t* data = initialize(filename);
+    BookData_t* data = libman_initialize(filename);
     libman_interactive(data);
-    free_memory(data);
+    libman_free(data);
     printf("Thanks for using.\n");
     return 0;
 }

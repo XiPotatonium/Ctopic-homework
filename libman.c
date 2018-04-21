@@ -243,7 +243,7 @@ int libman_interactive(BookData_t* data) {
     }
 }
 
-BookData_t* initialize(char* filename) {
+BookData_t* libman_initialize(char* filename) {
     time_t curtime;
     time(&curtime);
     printf("LibMan 1.0 | %s, %s\n", __DATE__, __TIME__);
@@ -311,7 +311,7 @@ BookData_t* initialize(char* filename) {
     return data;
 }
 
-int free_memory(BookData_t* data) {
+int libman_free(BookData_t* data) {
     /* Remember to free the memory allocated in append_linkedlist */
     Node_t* tmp;
     int ret;
