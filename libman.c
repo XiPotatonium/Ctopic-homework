@@ -83,6 +83,7 @@ int libman_interactive(BookData_t* data) {
             if (i >= 0) {
                 printf("%d result(s) found.\n", i);
             }
+        } else if (strcmp(cmd.str_cmd, "") == 0) {
         } else {
             char* guess = NULL;
             int len = strlen(cmd.str_cmd);
