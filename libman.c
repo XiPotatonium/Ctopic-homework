@@ -20,6 +20,10 @@ static int fprint_book(FILE* fp, Node_t* node);
 static void book_save(BookData_t* data, Book_t* book, FILE* fp);
 static void book_load(BookData_t* data, Book_t* book, FILE* fp);
 
+#define N_COMMANDS 7
+char* commands[7] = {"add",  "del",    "export", "exit",
+                     "help", "modify", "search"};
+
 /*********************
  * Public functions *
  *********************/
@@ -32,6 +36,7 @@ int libman_interactive(BookData_t* data) {
         "|        LibMan Interactive        |\n"
         "|                                  |\n"
         "+----------------------------------+\n");
+    printf("\n");
     printf("Type \"help\" for more information.\n");
     int i = 0;
     while (1) {
@@ -51,7 +56,7 @@ int libman_interactive(BookData_t* data) {
                 "These commands are defined internally:\n"
                 "\tadd: Add new books to the database\n"
                 "\tdel: Delete books from the database\n"
-                "\t\t" DID
+                "\t\t" DID "\t" ARG
                 "\n"
                 "\t\t" DALL
                 "\n"
@@ -61,16 +66,16 @@ int libman_interactive(BookData_t* data) {
                 "\n"
                 "\thelp: Print the help doc\n"
                 "\tmodify: Modify books in the database\n"
-                "\t\t" MID
+                "\t\t" MID "\t" ARG
                 "\n"
                 "\tsearch: Search books in the database\n"
-                "\t\t" SALL
+                "\t\t" SALL "\t" ARG_OPTIONAL
                 "\n"
-                "\t\t" SAUTHOR
+                "\t\t" SAUTHOR "\t" ARG
                 "\n"
-                "\t\t" SKEY
+                "\t\t" SKEY "\t" ARG
                 "\n"
-                "\t\t" SNAME "\n");
+                "\t\t" SNAME "\t" ARG "\n");
         } else if (strcmp(cmd.str_cmd, "modify") == 0) {
             modify_book(data);
         } else if (strcmp(cmd.str_cmd, "search") == 0) {
@@ -79,7 +84,45 @@ int libman_interactive(BookData_t* data) {
                 printf("%d result(s) found.\n", i);
             }
         } else {
-            printf("Invalid command.\n");
+            char* guess = NULL;
+            int len = strlen(cmd.str_cmd);
+            int ic;
+            if (len == 1) {
+                char ch = cmd.str_cmd[0];
+                for (ic = 0; ic < N_COMMANDS; ic++) {
+                    if (commands[ic][0] == ch) {
+                        guess = commands[ic];
+                        break;
+                    }
+                }
+            } else {
+                int max = 0;
+                int i1, i2;
+                for (ic = 0; ic < N_COMMANDS; ic++) {
+                    int match = 0;
+                    int cmdlen = strlen(commands[ic]);
+                    for (i1 = 0; i1 < len - 1; i1++) {
+                        int16_t cg1 = *(int16_t*)(cmd.str_cmd + i1);
+
+                        for (i2 = 0; i2 < cmdlen - 1; i2++) {
+                            int16_t cg2 = *(int16_t*)(commands[ic] + i2);
+                            if (cg1 == cg2) {
+                                ++match;
+                                break;
+                            }
+                        }
+                    }
+                    if (match > max) {
+                        max = match;
+                        guess = commands[ic];
+                    }
+                }
+            }
+            if (guess == NULL) {
+                printf("Invalid command.\n");
+            } else {
+                printf("Did you mean this?\n\t%s\n", guess);
+            }
         }
     }
 }
@@ -128,7 +171,7 @@ int get_cmd(void) {
 BookData_t* initialize(char* filename) {
     time_t curtime;
     time(&curtime);
-    printf("LibMan 1.0 | %s", ctime(&curtime));
+    printf("LibMan 1.0 | %s, %s\n", __DATE__, __TIME__);
     BookData_t* data = (BookData_t*)malloc(sizeof(BookData_t));
     FILE* fp = fopen(filename, "rb");
     Book_t* tmp;

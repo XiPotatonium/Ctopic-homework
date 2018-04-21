@@ -18,6 +18,8 @@
 #define DID "-id"
 #define DALL "-all"
 #define EALL "-all"
+#define ARG "<arg>"
+#define ARG_OPTIONAL "[<arg>]"
 
 /* Some definitions for struct Book */
 #define NAME_LEN 40
