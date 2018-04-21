@@ -17,7 +17,6 @@
 #define MID "-id"
 #define DID "-id"
 #define DALL "-all"
-#define EALL "-all"
 
 /* Some definitions for struct Book */
 #define NAME_LEN 40
@@ -43,7 +42,11 @@
 #define PASSWORD_LEN 20
 
 /**
- * 
+ * Anonymous struct: cmd
+ * ---------------------
+ * Desciption:
+ *  Used for saving command inputted from keyboard
+ * and saving arguments splited from the command
 */
 struct
 {
@@ -53,7 +56,10 @@ struct
 } cmd;
 
 /**
- * 
+ * Struct: Book_t
+ * --------------
+ * Description:
+ *  Used for store the info about the book
 */
 typedef struct Book
 {
@@ -66,7 +72,13 @@ typedef struct Book
 } Book_t;
 
 /**
- * 
+ * Struct: Node_t
+ * --------------
+ * Description:
+ *  Used only in linked list.
+ *  Each node is associated with a book and it stores the
+ * previous node and next node. And index is the sequence 
+ * number of the book in data file.
 */
 typedef struct Node
 {
@@ -77,7 +89,16 @@ typedef struct Node
 } Node_t;
 
 /**
- * 
+ * Struct: BookData_t
+ * ------------------
+ * Description:
+ *  Used as the temporary database in internal memory
+ *  It stores the name of the data file in hard disk,
+ * the hash list table which stores the nodes defined
+ * before, the number of deletions and records in file
+ * which are used to sync the data file before quiting
+ * the programme. And aes is used in encryption and 
+ * decryption of the data file
 */
 typedef struct BookData {
     char filename[FNAME_LEN];
@@ -189,14 +210,39 @@ int free_memory(BookData_t* data);
 
 /**
  * Function: import_book
+ * ---------------------
+ * Description:
+ *  Import books from a .txt file indicated by src_name
+ * In princile, users should only import a .txt generated
+ * by export_book
+ * Return value:
+ *  It returns -1 if there is something wrong in openning
+ * the source file.
+ *  It returns -2 if the source file is invalid.
+ *  It returns 0 if everthing is fine.
 */
 int import_book(BookData_t* data, char* src_name);
 
 /**
  * Function: export_book
+ * ---------------------
+ * Description:
+ *  Export books to a .txt file. The filename is by default
+ * "out.txt"
+ * Return value:
+ *  Return -1 if there is something wrong with the output file
+ *  Return 0 if everthing is fine
 */
-int export_book(BookData_t* data);
+int export_book(BookData_t* data, int allrecords);
 
-char* get_password(char* prompt, int asterist);
+/**
+ * Function: get_password
+ * ----------------------
+ * Description:
+ *  Get the password from keyboard input.
+ * Return value:
+ *  The password.
+*/
+char* get_password(char* prompt, int asterisk);
 
 #endif
