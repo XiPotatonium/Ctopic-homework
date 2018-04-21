@@ -45,7 +45,11 @@
 #define PASSWORD_LEN 20
 
 /**
- * 
+ * Anonymous struct: cmd
+ * ---------------------
+ * Desciption:
+ *  Used for saving command inputted from keyboard
+ * and saving arguments splited from the command
 */
 struct
 {
@@ -55,7 +59,10 @@ struct
 } cmd;
 
 /**
- * 
+ * Struct: Book_t
+ * --------------
+ * Description:
+ *  Used for store the info about the book
 */
 typedef struct Book
 {
@@ -68,7 +75,13 @@ typedef struct Book
 } Book_t;
 
 /**
- * 
+ * Struct: Node_t
+ * --------------
+ * Description:
+ *  Used only in linked list.
+ *  Each node is associated with a book and it stores the
+ * previous node and next node. And index is the sequence 
+ * number of the book in data file.
 */
 typedef struct Node
 {
@@ -79,7 +92,16 @@ typedef struct Node
 } Node_t;
 
 /**
- * 
+ * Struct: BookData_t
+ * ------------------
+ * Description:
+ *  Used as the temporary database in internal memory
+ *  It stores the name of the data file in hard disk,
+ * the hash list table which stores the nodes defined
+ * before, the number of deletions and records in file
+ * which are used to sync the data file before quiting
+ * the programme. And aes is used in encryption and 
+ * decryption of the data file
 */
 typedef struct BookData {
     char filename[FNAME_LEN];
@@ -89,27 +111,6 @@ typedef struct BookData {
     aes256_context_t* aes;
 } BookData_t;
 
-/**
- * Fucntion: libman_interactive
- * -----------------
- * Description:
- *  Interact with stdio
- * Return value:
- *  It returns 0 when user decided to exit
-*/
-int libman_interactive(BookData_t* data);
-
-/**
- * Fucntion: get_cmd
- * -----------------
- * Description:
- *  The function get a string from keyboard and resolve it
- * into several arguments
- * Return value:
- *  It returns the number of arguments it received
- *  It returns -4 if there is some error in parsing the command
-*/
-int get_cmd(void);
 
 /**
  * Function: initialize
@@ -124,56 +125,14 @@ int get_cmd(void);
 BookData_t* initialize(char* filename);
 
 /**
- * Function: add_book
- * ------------------
+ * Fucntion: libman_interactive
+ * -----------------
  * Description:
- *  The function adds new books into the linked list and
- * save them to the file indicated by data
+ *  Interact with stdio
  * Return value:
- *  It returns the number of books that has been added.
- *  It returns -1 if there are something wrong with teh file
+ *  It returns 0 when user decided to exit
 */
-int add_book(BookData_t* data);
-
-/**
- * Function: modify_book
- * ---------------------
- * Description:
- *  The function modifies a certain book indicated in the
- * command,save the changes to the file indicated by data
- * Return value:
- *  It returns -3 if there are something wrong in the command
- *  It returns 0 if everything is all fine
- *  It returns -1 if there is something wrong with the file
- *  It returns 1 if the target book doesn't exist
-*/
-int modify_book(BookData_t* data);
-
-/**
- * Function: delete_book
- * ---------------------
- * Description:
- * 	The function delete the certain book indicated in the command 
- * 	You can also use it to delete the whole file. The programme will
- * shut down if you delete the whole file
- * Rrturn value:
- * 	It returns 0 if everthing goes well.
- * 	It returns 1 if there is something wrong with the file
- *  It returns -1 if the argument is invalid
-*/
-int delete_book(BookData_t* data);
-
-/**
- * Function: search_book
- * ---------------------
- * Description:
- *  The function search the linked list with key word indicated
- * in the command and print the result in the screen
- * Return value:
- *  It returns 0 if everything is all fine
- *  It returns -3 if there are something wrong in the command
-*/
-int search_book(BookData_t* data);
+int libman_interactive(BookData_t* data);
 
 /**
  * Function: free_memory
@@ -188,17 +147,5 @@ int search_book(BookData_t* data);
  * be fixed manually.
 */
 int free_memory(BookData_t* data);
-
-/**
- * Function: import_book
-*/
-int import_book(BookData_t* data, char* src_name);
-
-/**
- * Function: export_book
-*/
-int export_book(BookData_t* data);
-
-char* get_password(char* prompt, int asterist);
 
 #endif
