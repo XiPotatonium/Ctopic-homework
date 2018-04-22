@@ -114,12 +114,72 @@ static int delete_book(BookData_t* data);
 */
 static int search_book(BookData_t* data);
 
+/**
+ * Function: hash
+ * --------------
+ * Description:
+ *  Get the hash code according to the name of the book
+ * Return value:
+ *  Return the hash code of the string
+ * 
+*/
 static int hash(char* name);
+
+/**
+ * Function: set_book
+ * -----------------
+ * Description:
+ *  Set the book info from keyboard input
+ * Return value:
+ *  Return 0 if everthing is fine
+*/
 static int set_book(Book_t* book);
+
+/**
+ * Function: append_linkedlist
+ * ---------------------------
+ * Description:
+ *  Add the book to the hash table. int i should be the index of the
+ * book in the data file.
+ * Return value:
+ *  Return 0 if everthing is fine
+*/
 static int append_linkedlist(BookData_t* data, Book_t* book, int i);
+
+/**
+ * Function: printf_book
+ * ---------------
+ * Description:
+ *  Print the info of the book to the screen
+ * Return value:
+ *  Return 0 if everthing is fine
+*/
 static int print_book(Node_t* node);
+
+/**
+ * Function: fprintf_book
+ * ---------------
+ * Description:
+ *  Print the book info to a .txt file
+ * Return value:
+ *  Return 0 if everthing is fine
+*/
 static int fprint_book(FILE* fp, Node_t* node);
+
+/**
+ * Function: book_save
+ * ---------------
+ * Description:
+ *  Save the book to the data file using aes256 encription
+*/
 static void book_save(BookData_t* data, Book_t* book, FILE* fp);
+
+/**
+ * Function: book_load
+ * ---------------
+ * Description:
+ *  Load the book from the data file using aes256 decription
+*/
 static void book_load(BookData_t* data, Book_t* book, FILE* fp);
 
 #define N_COMMANDS 7
@@ -142,7 +202,7 @@ int libman_interactive(BookData_t* data) {
     int i = 0;
     while (1) {
         printf(">>> ");
-        if (get_cmd() == -1) {
+        if (get_cmd() == -4) {
             printf("Invalid input.\n");
         } else if (strcmp(cmd.str_cmd, "add") == 0) {
             add_book(data);
