@@ -242,15 +242,18 @@ int libman_interactive(BookData_t* data) {
                 "\n"
                 "\t\t" SNAME "\t" ARG "\n");
         } else if (strcmp(cmd.str_cmd, "import") == 0) {
+            /* Incomplete function */
+#if 0
             /*
             "\timport: Import new books from .txt to the database\n"
             "\t\tUsage: import <filename>\n"
+            */
             if (cmd.argc == 1) {
                 printf("Insufficient argument.\n");
             } else {
                 import_book(data, cmd.argv[1]);
             }
-            */
+#endif
         } else if (strcmp(cmd.str_cmd, "modify") == 0) {
             modify_book(data);
         } else if (strcmp(cmd.str_cmd, "search") == 0) {
