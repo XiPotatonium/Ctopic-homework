@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "genlib.h"
-#include "strlib.h"
-#include "simpio.h"
+#include "../include/genlib.h"
+#include "../include/strlib.h"
+#include "../include/simpio.h"
 
 /*
  * Constants:

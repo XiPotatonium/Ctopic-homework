@@ -18,10 +18,10 @@
 #include <wincon.h>
 #include <Windows.h>
 
-#include "genlib.h"
-#include "gcalloc.h"
-#include "strlib.h"
-#include "extgraph.h"
+#include "../include/genlib.h"
+#include "../include/gcalloc.h"
+#include "../include/strlib.h"
+#include "../include/extgraph.h"
 
 /*
  * Parameters

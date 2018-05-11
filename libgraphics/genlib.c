@@ -12,9 +12,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "genlib.h"
-#include "gcalloc.h"
-#include "exception.h"
+#include "../include/genlib.h"
+#include "../include/gcalloc.h"
+#include "../include/exception.h"
 
 /*
  * Constants:

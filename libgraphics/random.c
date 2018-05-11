@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "genlib.h"
-#include "random.h"
+#include "../include/genlib.h"
+#include "../include/random.h"
 
 /*
  * Function: Randomize

@@ -21,8 +21,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "genlib.h"
-#include "strlib.h"
+#include "../include/genlib.h"
+#include "../include/strlib.h"
 
 /*
  * Constant: MaxDigits
