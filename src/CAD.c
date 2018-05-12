@@ -1,22 +1,22 @@
+#include "../include/graphics.h"
 #include "../include/extgraph.h"
 #include "../include/genlib.h"
-#include "../include/graphics.h"
-#include "../include/linkedlist.h"
-#include "../include/random.h"
 #include "../include/simpio.h"
+#include "../include/random.h"
 #include "../include/strlib.h"
+#include "../include/linkedlist.h"
 
 #include <conio.h>
-#include <math.h>
-#include <mmsystem.h>
-#include <ocidl.h>
-#include <ole2.h>
-#include <olectl.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <stddef.h>
 #include <windows.h>
+#include <olectl.h>
+#include <mmsystem.h>
 #include <wingdi.h>
+#include <ole2.h>
+#include <ocidl.h>
 #include <winuser.h>
 
 #define NLIST 4
@@ -413,6 +413,7 @@ void MouseEventProcess(int x, int y, int button, int event) {
                 break;
             }
             PickNearestNode(list, mx, my); /*Ñ¡Ôñ¶ÔÏó*/
+			if (curList == 0) break;
             switch (curList) {
                 case LINE:
                     curLine->isSelected = TRUE;
