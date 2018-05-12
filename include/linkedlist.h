@@ -59,7 +59,8 @@ void FreeLinkedList(linkedlistADT linkedlist);
  * find out the obj, renturn NULL otherwise.
  */
 
-linkedlistADT SearchNode(linkedlistADT linkedlist, void *obj, bool (*equalfunptr)(void *obj1, void *obj2));
+linkedlistADT SearchNode(linkedlistADT linkedlist, void *obj,
+                         bool (*equalfunptr)(void *obj1, void *obj2));
 
 /*
  * Function: InsertNode
@@ -75,8 +76,8 @@ void InsertNode(linkedlistADT linkedlist, linkedlistADT nodeptr, void *obj);
  * Function: DeleteNode
  * Usage: nodeptr = DeleteNode(linkedlist, obj, equalfunptr);
  * ------------------------------
- * This function deletes the node with the data obj of the linked list. it returns
- * the pointer of the node if found, NULL otherwise.
+ * This function deletes the node with the data obj of the linked list. it
+ * returns the pointer of the node if found, NULL otherwise.
  */
 
 linkedlistADT DeleteNode(linkedlistADT linkedlist, void *obj,
@@ -90,7 +91,8 @@ linkedlistADT DeleteNode(linkedlistADT linkedlist, void *obj,
  * the function which funptr points to.
  */
 
-void TraverseLinkedList(linkedlistADT linkedlist, void (*traversefunptr)(void *obj));
+void TraverseLinkedList(linkedlistADT linkedlist,
+                        void (*traversefunptr)(void *obj));
 
 /*
  * Function: ithNode

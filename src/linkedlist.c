@@ -22,7 +22,6 @@ struct linkedlistCDT {
 
 /* Exported entries */
 
-
 /*
  * Function: NewLinkedList
  * Usage: linkedlist = NewLinkedList();
@@ -31,13 +30,12 @@ struct linkedlistCDT {
  * node only).
  */
 
-linkedlistADT NewLinkedList(void)
-{
+linkedlistADT NewLinkedList(void) {
     linkedlistADT head;
 
     head = New(linkedlistADT);
     head->dataptr = NULL;
-	head->next = NULL;
+    head->next = NULL;
     return (head);
 }
 
@@ -48,17 +46,16 @@ linkedlistADT NewLinkedList(void)
  * This function frees the storage associated with linked list.
  */
 
-void FreeLinkedList(linkedlistADT head)
-{
-	linkedlistADT nodeptr, nextnodeptr;
+void FreeLinkedList(linkedlistADT head) {
+    linkedlistADT nodeptr, nextnodeptr;
 
-	nodeptr = head;
-	while (nodeptr != NULL) {
-	    nextnodeptr = nodeptr->next;
-		if (nodeptr != head) FreeBlock(nodeptr->dataptr);
-		FreeBlock(nodeptr);
-		nodeptr = nextnodeptr;
-	}
+    nodeptr = head;
+    while (nodeptr != NULL) {
+        nextnodeptr = nodeptr->next;
+        if (nodeptr != head) FreeBlock(nodeptr->dataptr);
+        FreeBlock(nodeptr);
+        nodeptr = nextnodeptr;
+    }
 }
 
 /*
@@ -70,16 +67,15 @@ void FreeLinkedList(linkedlistADT head)
  */
 
 linkedlistADT SearchNode(linkedlistADT head, void *obj,
-                         bool (*equalfunptr)(void *obj1, void *obj2))
-{
-	linkedlistADT nodeptr;
-	
-	if (obj == NULL) return NULL;
-	nodeptr = head->next;
-	while (nodeptr != NULL) {
-		if ((*equalfunptr)(nodeptr->dataptr, obj)) return nodeptr;
-	}
-	return NULL;
+                         bool (*equalfunptr)(void *obj1, void *obj2)) {
+    linkedlistADT nodeptr;
+
+    if (obj == NULL) return NULL;
+    nodeptr = head->next;
+    while (nodeptr != NULL) {
+        if ((*equalfunptr)(nodeptr->dataptr, obj)) return nodeptr;
+    }
+    return NULL;
 }
 
 /*
@@ -90,45 +86,43 @@ linkedlistADT SearchNode(linkedlistADT head, void *obj,
  * list. if nodeptr is NULL, append the obj to the tail of the linked list.
  */
 
-void InsertNode(linkedlistADT head, linkedlistADT nodeptr, void *obj)
-{
-	linkedlistADT ptr;
+void InsertNode(linkedlistADT head, linkedlistADT nodeptr, void *obj) {
+    linkedlistADT ptr;
 
-	if (obj == NULL) return;
-	if (nodeptr == NULL) { /*append the obj to the tail*/
-		nodeptr = head;
-		while (nodeptr->next != NULL) nodeptr = nodeptr->next;
-	}
-	ptr = New(linkedlistADT); /*New a node*/
-	ptr->dataptr = obj;  /*Set the data ptr of the node*/
-	ptr->next = nodeptr->next;
-	nodeptr->next = ptr;
+    if (obj == NULL) return;
+    if (nodeptr == NULL) { /*append the obj to the tail*/
+        nodeptr = head;
+        while (nodeptr->next != NULL) nodeptr = nodeptr->next;
+    }
+    ptr = New(linkedlistADT); /*New a node*/
+    ptr->dataptr = obj;       /*Set the data ptr of the node*/
+    ptr->next = nodeptr->next;
+    nodeptr->next = ptr;
 }
 
 /*
  * Function: DeleteNode
  * Usage: nodeptr = DeleteNode(linkedlist, obj, equalfunptr);
  * ------------------------------
- * This function deletes the node with the data obj of the linked list. it returns
- * the pointer of the node if found, NULL otherwise.
+ * This function deletes the node with the data obj of the linked list. it
+ * returns the pointer of the node if found, NULL otherwise.
  */
 
 linkedlistADT DeleteNode(linkedlistADT head, void *obj,
-                         bool (*equalfunptr)(void *obj1, void *obj2))
-{
-	linkedlistADT nodeptr, prenodeptr;
+                         bool (*equalfunptr)(void *obj1, void *obj2)) {
+    linkedlistADT nodeptr, prenodeptr;
 
-	if (obj == NULL) return NULL;
-	prenodeptr = head;
+    if (obj == NULL) return NULL;
+    prenodeptr = head;
     nodeptr = head->next;
-	while (nodeptr != NULL) {
-		if ((*equalfunptr)(nodeptr->dataptr, obj)) break;
-	    prenodeptr = nodeptr;
+    while (nodeptr != NULL) {
+        if ((*equalfunptr)(nodeptr->dataptr, obj)) break;
+        prenodeptr = nodeptr;
         nodeptr = nodeptr->next;
-	}
-	if (nodeptr != NULL) /*found*/
-	    prenodeptr->next = nodeptr->next;
-	return nodeptr;
+    }
+    if (nodeptr != NULL) /*found*/
+        prenodeptr->next = nodeptr->next;
+    return nodeptr;
 }
 
 /*
@@ -139,16 +133,15 @@ linkedlistADT DeleteNode(linkedlistADT head, void *obj,
  * the function which funptr points to.
  */
 
-void TraverseLinkedList(linkedlistADT head, void (*traversefunptr)(void *obj))
-{
-	linkedlistADT nodeptr;
+void TraverseLinkedList(linkedlistADT head, void (*traversefunptr)(void *obj)) {
+    linkedlistADT nodeptr;
 
-	if (traversefunptr == NULL) return;
-	nodeptr = head->next;
-	while (nodeptr != NULL) {
-		(*traversefunptr)(nodeptr->dataptr);
-		nodeptr = nodeptr->next;
-	}
+    if (traversefunptr == NULL) return;
+    nodeptr = head->next;
+    while (nodeptr != NULL) {
+        (*traversefunptr)(nodeptr->dataptr);
+        nodeptr = nodeptr->next;
+    }
 }
 
 /*
@@ -158,19 +151,17 @@ void TraverseLinkedList(linkedlistADT head, void (*traversefunptr)(void *obj))
  * This function return the pointer of the index-th node of the linked list.
  */
 
-void *ithNodeobj(linkedlistADT head, int index)
-{
-	linkedlistADT nodeptr;
-	int count = 0;
+void *ithNodeobj(linkedlistADT head, int index) {
+    linkedlistADT nodeptr;
+    int count = 0;
 
-	nodeptr = head->next;
-	while (nodeptr != NULL) {
-		if (++count == index) break;
-		nodeptr = nodeptr->next;
-	}
-	if (nodeptr != NULL)
-        return nodeptr->dataptr;
-	return NULL;
+    nodeptr = head->next;
+    while (nodeptr != NULL) {
+        if (++count == index) break;
+        nodeptr = nodeptr->next;
+    }
+    if (nodeptr != NULL) return nodeptr->dataptr;
+    return NULL;
 }
 
 /*
@@ -180,10 +171,9 @@ void *ithNodeobj(linkedlistADT head, int index)
  * This function return the pointer of the next node of the node nodeptr.
  */
 
-linkedlistADT NextNode(linkedlistADT head, linkedlistADT nodeptr)
-{
-	if (nodeptr != NULL) return nodeptr->next;
-	return NULL;
+linkedlistADT NextNode(linkedlistADT head, linkedlistADT nodeptr) {
+    if (nodeptr != NULL) return nodeptr->next;
+    return NULL;
 }
 
 /*
@@ -193,8 +183,7 @@ linkedlistADT NextNode(linkedlistADT head, linkedlistADT nodeptr)
  * This function return the dataptr of the node nodeptr points to.
  */
 
-void *NodeObj(linkedlistADT head, linkedlistADT nodeptr)
-{
-	if (nodeptr != NULL) return nodeptr->dataptr;
-	return NULL;
+void *NodeObj(linkedlistADT head, linkedlistADT nodeptr) {
+    if (nodeptr != NULL) return nodeptr->dataptr;
+    return NULL;
 }
