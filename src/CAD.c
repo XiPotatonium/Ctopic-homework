@@ -73,8 +73,9 @@ typedef struct {      /*文本类型*/
 } * TextT;
 
 linkedlistADT list[NLIST] = {NULL, NULL, NULL, NULL}; /*四类图形元素链表指针*/
-double minDistance[NLIST] = {100000000.0, 1000000000.0, 1000000000.0,
-                             1000000000.0};
+#define MAXDISTANCE 100000000.0
+double minDistance[NLIST] = {MAXDISTANCE, MAXDISTANCE, MAXDISTANCE,
+                             MAXDISTANCE};
 int curList = LINE;         /*当前链表序号*/
 LineT curLine = NULL;       /*直线链表的当前对象指针*/
 RectT curRect = NULL;       /*矩形链表的当前对象指针*/
@@ -413,7 +414,7 @@ void MouseEventProcess(int x, int y, int button, int event) {
                 break;
             }
             PickNearestNode(list, mx, my); /*选择对象*/
-			if (curList == 0) break;
+			if (curList == -1) break;
             switch (curList) {
                 case LINE:
                     curLine->isSelected = TRUE;
@@ -580,7 +581,10 @@ LineT SelectNearestNodeL(linkedlistADT list, double mx, double my) {
     double mindistance, dist;
 
     ptr = NextNode(list, list);
-    if (ptr == NULL) return NULL;
+    if (ptr == NULL) {
+        minDistance[LINE] = MAXDISTANCE;
+        return NULL;
+    }
     nearestnode = ptr;
     mindistance = distLine(mx, my, (LineT)NodeObj(list, ptr));
     while (NextNode(list, ptr) != NULL) {
@@ -635,7 +639,10 @@ RectT SelectNearestNodeR(linkedlistADT list, double mx, double my) {
     double mindistance, dist;
 
     ptr = NextNode(list, list);
-    if (ptr == NULL) return NULL;
+    if (ptr == NULL) {
+        minDistance[RECT] = MAXDISTANCE;
+        return NULL;
+    }
     nearestnode = ptr;
     mindistance = distRect(mx, my, (RectT)NodeObj(list, ptr));
     while (NextNode(list, ptr) != NULL) {
@@ -681,7 +688,10 @@ EllipseT SelectNearestNodeE(linkedlistADT list, double mx, double my) {
     double mindistance, dist;
 
     ptr = NextNode(list, list);
-    if (ptr == NULL) return NULL;
+    if (ptr == NULL) {
+        minDistance[ELLIPSE] = MAXDISTANCE;
+        return NULL;
+    }
     nearestnode = ptr;
     mindistance = distEllipse(mx, my, (EllipseT)NodeObj(list, ptr));
     while (NextNode(list, ptr) != NULL) {
@@ -735,7 +745,10 @@ TextT SelectNearestNodeT(linkedlistADT list, double mx, double my) {
     double mindistance, dist;
 
     ptr = NextNode(list, list);
-    if (ptr == NULL) return NULL;
+    if (ptr == NULL) {
+        minDistance[STRING] = MAXDISTANCE;
+        return NULL;
+    }
     nearestnode = ptr;
     mindistance = distText(mx, my, (TextT)NodeObj(list, ptr));
     while (NextNode(list, ptr) != NULL) {
@@ -793,7 +806,12 @@ void PickNearestNode(linkedlistADT list[], double mx, double my) {
     for (i = 1; i < NLIST; i++) {
         if (minDistance[i] < minDistance[minlist]) minlist = i;
     }
-    curList = minlist;
+    if (minDistance[minlist] == MAXDISTANCE) {
+        /* Indicate that there is no pattern on canvas */
+        curList = -1;
+    } else {
+        curList = minlist;
+    }
 }
 
 void TraverseAllList() {
