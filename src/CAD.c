@@ -386,7 +386,8 @@ void MouseEventProcess(int x, int y, int button, int event)
          	    }
 				break;
          	} 
-         	PickNearestNode(list, mx, my);/*选择对象*/ 
+         	PickNearestNode(list, mx, my);/*选择对象*/
+			if (curList == 0) break;
          	switch (curList) {
          	  	case LINE:
          	  		curLine->isSelected = TRUE;
