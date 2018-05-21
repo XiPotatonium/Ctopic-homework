@@ -4,13 +4,13 @@
 CPP      = g++.exe -D__DEBUG__
 CC       = gcc.exe -D__DEBUG__
 WINDRES  = windres.exe
-OBJ      = obj/exceptio.o obj/genlib.o obj/graphics.o obj/random.o obj/simpio.o obj/strlib.o obj/CAD.o obj/linkedlist.o
-LINKOBJ  = obj/exceptio.o obj/genlib.o obj/graphics.o obj/random.o obj/simpio.o obj/strlib.o obj/CAD.o obj/linkedlist.o
+OBJ      = obj/exceptio.o obj/genlib.o obj/graphics.o obj/random.o obj/simpio.o obj/strlib.o obj/main.o obj/linkedlist.o
+LINKOBJ  = obj/exceptio.o obj/genlib.o obj/graphics.o obj/random.o obj/simpio.o obj/strlib.o obj/main.o obj/linkedlist.o
 #LIBS     = -L"D:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\lib" -L"D:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\x86_64-w64-mingw32\lib" -static-libstdc++ -static-libgcc -mwindows -g3 -lgdi32
 LIBS     = -static-libstdc++ -static-libgcc -mwindows -g3 -lgdi32
 #INCS     = -I"D:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\include" -I"./include"
 #CXXINCS  = -I"D:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\include" -I"D:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\x86_64-w64-mingw32\include" -I"./include"
-BIN      = bin/CAD.exe
+BIN      = bin/main.exe
 CXXFLAGS = $(CXXINCS) -Wfatal-errors -g3
 CFLAGS   = $(INCS) -Wfatal-errors -g3
 RM       = del /q
@@ -43,8 +43,8 @@ obj/simpio.o: libgraphics/simpio.c
 obj/strlib.o: libgraphics/strlib.c
 	$(CC) -c libgraphics/strlib.c -o obj/strlib.o $(CFLAGS)
 
-obj/CAD.o: src/CAD.c
-	$(CC) -c src/CAD.c -o obj/CAD.o $(CFLAGS)
+obj/main.o: src/main.c
+	$(CC) -c src/main.c -o obj/main.o $(CFLAGS)
 
 obj/linkedlist.o: src/linkedlist.c
 	$(CC) -c src/linkedlist.c -o obj/linkedlist.o $(CFLAGS)
